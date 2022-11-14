@@ -32,4 +32,8 @@ export class SqlWordService implements WordService {
   async saveAll(words: Partial<WordEntry>[]): Promise<void> {
     await this.wordEntryRepository.save(words);
   }
+
+  async deleteAll() {
+    await this.wordEntryRepository.delete({});
+  }
 }

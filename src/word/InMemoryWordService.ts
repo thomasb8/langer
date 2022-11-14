@@ -23,4 +23,9 @@ export class InMemoryWordService implements WordService {
   findAll(): Promise<WordEntry[]> {
     return Promise.resolve(this.words);
   }
+
+  deleteAll(): Promise<void> {
+    this.words = [];
+    return Promise.resolve();
+  }
 }

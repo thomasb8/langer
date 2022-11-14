@@ -10,4 +10,6 @@ export interface WordService {
   saveAll(words: Partial<WordEntry>[]): Promise<void>;
 
   findAll(): Promise<WordEntry[]>;
+
+  deleteAll(): Promise<void>;
 }

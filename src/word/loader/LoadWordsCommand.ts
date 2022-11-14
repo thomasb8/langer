@@ -9,13 +9,10 @@ import * as fs from 'fs';
 import * as readLine from 'readline';
 import { Inject } from '@nestjs/common';
 import { WORD_SERVICE, WordService } from '../WordService';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 @Command({ name: 'load-words', description: 'Load words into dictionary' })
 export class LoadWordsCommand extends CommandRunner {
   constructor(
-    @InjectRepository(WordEntry, 'langer') private wordEntryRepository: Repository<WordEntry>,
     @Inject(WORD_SERVICE) private wordService: WordService
   ) {
     super();
@@ -30,7 +27,7 @@ export class LoadWordsCommand extends CommandRunner {
       throw new Error(`Input file: ${path} does not exist`);
     }
 
-    await this.wordEntryRepository.delete({});
+    await this.wordService.deleteAll();
 
     const stream = fs.createReadStream(path);
     const rl = readLine.createInterface({
