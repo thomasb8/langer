@@ -1,26 +1,29 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AppService } from './AppService';
-import { LoadWordsCommand } from './commands/LoadWords';
-import { Word, WordSchema } from './schemas/Word.schema';
-import * as dotenv from 'dotenv';
-import { AppController } from './AppController';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
+import { LoadWordsCommand } from './word/loader/LoadWordsCommand';
+import { WordEntry } from './word/WordEntry.entity';
 import { ConfigModule } from '@nestjs/config';
 import { CommandRunnerModule } from 'nest-commander';
-dotenv.config();
+import { WordController } from './word/WordController';
+import { WORD_SERVICE } from './word/WordService';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { SqlWordService } from './word/SqlWordService';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { createLangerOrmConfig } from './LangerOrmConfig';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(
-      `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}`,
-    ),
-    MongooseModule.forFeature([{ name: Word.name, schema: WordSchema }]),
+    TypeOrmModule.forRoot(createLangerOrmConfig()),
+    TypeOrmModule.forFeature([WordEntry], 'langer'),
     CommandRunnerModule.forModule()
   ],
-  controllers: [AppController],
+  controllers: [WordController],
   providers: [
-    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    },
+    { provide: WORD_SERVICE, useClass: SqlWordService },
     LoadWordsCommand
   ]
 })
