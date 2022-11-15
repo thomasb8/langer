@@ -9,10 +9,10 @@ export class InMemoryWordService implements WordService {
     return Promise.resolve(this.words.filter(it => it.word.includes(search)));
   }
 
-  saveAll(words: Partial<WordEntry>[]): Promise<void> {
-    const wordsToSave = words.map(it => plainToInstance(WordEntry, { ...it, id: Math.random() }));
-    this.words = [...this.words, ...wordsToSave];
-    return Promise.resolve();
+  saveAll(words: Partial<WordEntry>[]): Promise<WordEntry[]> {
+    const wordsToSave = words.map(it => plainToInstance(WordEntry, { ...it, id: it.id || Math.random().toString() }));
+    this.words = [...this.words.filter(it => !wordsToSave.find(newWord => it.id === newWord.id)), ...wordsToSave];
+    return Promise.resolve(this.words);
   }
 
   showWord(id: string): Promise<WordEntry | null> {
@@ -27,5 +27,13 @@ export class InMemoryWordService implements WordService {
   deleteAll(): Promise<void> {
     this.words = [];
     return Promise.resolve();
+  }
+
+  findWordBySearch(search: string): Promise<WordEntry | undefined> {
+    return Promise.resolve(this.words.find(it => it.word === search));
+  }
+
+  findByIds(ids: string[]): Promise<WordEntry[]> {
+    return Promise.resolve(this.words.filter(it => ids.includes(it.id)));
   }
 }

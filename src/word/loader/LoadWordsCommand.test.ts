@@ -24,7 +24,7 @@ describe('#LoadWordsCommand', () => {
   test('Load words into database', async () => {
     await subject.run([], { path: './src/word/loader/test-input.json' });
     const models: WordEntry[] = await wordService.findAll();
-    expect(models.length).toEqual(2);
+    expect(models.length).toEqual(3);
   });
 
   test('Correctly loads basic fields for a verb', async () => {
@@ -56,5 +56,13 @@ describe('#LoadWordsCommand', () => {
     expect(verb.plural).toEqual('Kinder');
     expect(verb.conjugations.length).toEqual(16);
     expect(verb.conjugations[0]).toEqual({ form: 'Kindes', tags: ['genitive'] });
+  });
+
+  test('Sets up connection between related words', async () => {
+    await subject.run([], { path: './src/word/loader/test-input.json' });
+    const base: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('ablenken'))[0]);
+    const derived: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('Ablenken'))[0]);
+    expect(derived.formOf?.[0].word).toEqual('ablenken');
+    expect(derived.formOf?.[0].id).toEqual(base.id);
   });
 });

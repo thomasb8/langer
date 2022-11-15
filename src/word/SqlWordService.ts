@@ -10,6 +10,10 @@ export class SqlWordService implements WordService {
   constructor(@InjectRepository(WordEntry, 'langer') private wordEntryRepository: Repository<WordEntry>) {
   }
 
+  findByIds(ids: string[]): Promise<WordEntry[]> {
+    return this.wordEntryRepository.findByIds(ids);
+  }
+
   findAll(): Promise<WordEntry[]> {
     return Promise.resolve([]);
   }
@@ -29,11 +33,15 @@ export class SqlWordService implements WordService {
     return plainToInstance(WordEntry, obj);
   }
 
-  async saveAll(words: Partial<WordEntry>[]): Promise<void> {
-    await this.wordEntryRepository.save(words);
+  async saveAll(words: Partial<WordEntry>[]): Promise<WordEntry[]> {
+    return await this.wordEntryRepository.save(words);
   }
 
   async deleteAll() {
     await this.wordEntryRepository.delete({});
+  }
+
+  async findWordBySearch(search: string): Promise<WordEntry | undefined> {
+    return this.wordEntryRepository.findOne({ where: { word: search } });
   }
 }

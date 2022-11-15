@@ -1,6 +1,6 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 import {
-  Conjugation,
+  Conjugation, RelatedWord,
   Sense,
   WordEntry,
   WordMeta
@@ -35,6 +35,7 @@ export class LoadWordsCommand extends CommandRunner {
       crlfDelay: Infinity
     });
 
+    const altMap = new Map<string, Array<{ id: string, word: string }>>();
     let objs = [];
     const chunkSize = 1000;
     let count = 0;
@@ -56,6 +57,10 @@ export class LoadWordsCommand extends CommandRunner {
           })) || []
         } as Sense);
       });
+      let formOf: RelatedWord | undefined;
+      if (obj.senses?.[0]?.form_of) {
+        formOf = { word: obj.senses[0].form_of[0].word, id: '' };
+      }
       const wordObj: Partial<WordEntry> = {
         word: obj.word,
         position: obj.pos,
@@ -66,17 +71,41 @@ export class LoadWordsCommand extends CommandRunner {
         wordObj.gender = meta.gender;
         wordObj.plural = meta.plural;
       }
+      if (formOf) {
+        wordObj.formOf = [formOf];
+      }
       objs.push(wordObj);
       if (count < chunkSize) {
         count++;
         continue;
       }
       count = 0;
-      await this.wordService.saveAll(objs);
+      const savedWords = await this.wordService.saveAll(objs);
+      savedWords.filter(it => it.formOf).forEach(it => {
+        if (!altMap.get(it.formOf![0].word)) {
+          altMap.set(it.formOf![0].word, []);
+        }
+        altMap.get(it.formOf![0].word)!.push({ id: it.id, word: it.word });
+      });
       objs = [];
     }
+
     if (objs.length) {
-      await this.wordService.saveAll(objs);
+      const savedWords = await this.wordService.saveAll(objs);
+      savedWords.filter(it => it.formOf).forEach(it => {
+        if (!altMap.get(it.formOf![0].word)) {
+          altMap.set(it.formOf![0].word, []);
+        }
+        altMap.get(it.formOf![0].word)!.push({ id: it.id, word: it.word });
+      });
+    }
+
+    for (const [key, value] of altMap.entries()) {
+      const wordEntry = await this.wordService.findWordBySearch(key);
+      const relatedWords = await this.wordService.findByIds(value.map(it => it.id));
+      if (!wordEntry || !relatedWords.length) continue;
+      relatedWords.forEach(it => it.formOf?.forEach(it => it.id = wordEntry.id));
+      await this.wordService.saveAll(relatedWords);
     }
   }
 
