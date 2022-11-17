@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Inject, Param, ParseUUIDPipe } from '@nestjs/common';
 import { WORD_SERVICE, WordService } from './WordService';
 import { WordEntry } from './WordEntry.entity';
 
@@ -7,7 +7,7 @@ export class WordController {
   constructor(@Inject(WORD_SERVICE) private readonly wordService: WordService) {}
 
   @Get('/word/:id')
-  findById(@Param('id') id: string): Promise<WordEntry | null> {
+  findById(@Param('id', new ParseUUIDPipe()) id: string): Promise<WordEntry | null> {
     return this.wordService.showWord(id);
   }
 
