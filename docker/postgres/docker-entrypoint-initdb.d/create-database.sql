@@ -1,1 +1,2 @@
 CREATE DATABASE langer_db;
+CREATE EXTENSION pg_trgm;
