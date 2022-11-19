@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { WordEntry } from './WordEntry.entity';
 import { plainToInstance } from 'class-transformer';
 import { WordService } from './WordService';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
+import { InjectLangerRepository } from '../InjectLangerRepository';
 
 @Injectable()
 export class SqlWordService implements WordService {
-  constructor(@InjectRepository(WordEntry, 'langer') private wordEntryRepository: Repository<WordEntry>) {
+  constructor(@InjectLangerRepository(WordEntry) private wordEntryRepository: Repository<WordEntry>) {
   }
 
   findByIds(ids: string[]): Promise<WordEntry[]> {
