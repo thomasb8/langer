@@ -9,12 +9,13 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SqlWordService } from './word/SqlWordService';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createLangerOrmConfig } from './LangerOrmConfig';
+import User from './user/User.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(createLangerOrmConfig()),
-    TypeOrmModule.forFeature([WordEntry], 'langer'),
+    TypeOrmModule.forFeature([WordEntry, User], 'langer'),
     CommandRunnerModule.forModule()
   ],
   controllers: [WordController],
