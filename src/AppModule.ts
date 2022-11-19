@@ -20,6 +20,8 @@ import { LocalStrategy } from './auth/LocalStrategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/JwtStrategy';
 import { SqlUserService } from './user/SqlUserService';
+import WordSessionController from './word-session/WordSessionController';
+import WordSessionService from './word-session/WordSessionService';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { SqlUserService } from './user/SqlUserService';
     }),
     CommandRunnerModule.forModule()
   ],
-  controllers: [WordController, AuthController],
+  controllers: [WordController, AuthController, WordSessionController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
@@ -44,6 +46,7 @@ import { SqlUserService } from './user/SqlUserService';
     LocalStrategy,
     JwtStrategy,
     { provide: USER_SERVICE, useClass: SqlUserService },
+    WordSessionService,
     LoadWordsCommand
   ]
 })

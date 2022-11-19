@@ -17,7 +17,7 @@ export default class WordSession {
   @Column()
   userId: string;
 
-  @Expose()
+  @Exclude()
   @JoinColumn({ name: 'user_id' })
   @Type(() => User)
   @ManyToOne(() => User, user => user.sessions, { onDelete: 'CASCADE' })
@@ -25,6 +25,6 @@ export default class WordSession {
 
   @Expose()
   @Type(() => WordSessionEntry)
-  @OneToMany(() => WordSessionEntry, entry => entry.wordSession)
+  @OneToMany(() => WordSessionEntry, entry => entry.wordSession, { cascade: true, onDelete: 'CASCADE' })
   entries: WordSessionEntry[];
 }
