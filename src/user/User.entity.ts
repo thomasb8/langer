@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
+import WordSession from '../word-session/WordSession.entity';
 
 @Entity()
 export default class User {
@@ -26,4 +27,7 @@ export default class User {
   @Exclude()
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => WordSession, session => session.user)
+  sessions: WordSession[];
 }

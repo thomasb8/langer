@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import WordSessionEntry from '../word-session/WordSessionEntry.entity';
 
 @Entity()
 export class WordEntry {
@@ -49,6 +50,9 @@ export class WordEntry {
     nullable: true
   })
   formOf?: RelatedWord[];
+
+  @OneToMany(() => WordSessionEntry, sessionEntry => sessionEntry.word)
+  sessionEntries: WordSessionEntry[];
 }
 
 export type Conjugation = {
