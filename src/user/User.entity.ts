@@ -9,11 +9,11 @@ export default class User {
   id: string;
 
   @Expose()
-  @Column()
+  @Column({ nullable: true })
   firstName: string;
 
   @Expose()
-  @Column()
+  @Column({ nullable: true })
   lastName: string;
 
   @Expose()
