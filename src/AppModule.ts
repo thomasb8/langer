@@ -12,13 +12,14 @@ import { createLangerOrmConfig } from './LangerOrmConfig';
 import WordSession from './word-session/WordSession.entity';
 import WordSessionEntry from './word-session/WordSessionEntry.entity';
 import User from './user/User.entity';
-import { UserService } from './user/UserService';
+import { USER_SERVICE } from './user/UserService';
 import { AuthService } from './auth/AuthService';
 import AuthController from './auth/AuthController';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './auth/LocalStrategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/JwtStrategy';
+import { SqlUserService } from './user/SqlUserService';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { JwtStrategy } from './auth/JwtStrategy';
     AuthService,
     LocalStrategy,
     JwtStrategy,
-    UserService,
+    { provide: USER_SERVICE, useClass: SqlUserService },
     LoadWordsCommand
   ]
 })
