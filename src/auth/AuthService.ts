@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/UserService';
+import { Inject, Injectable } from '@nestjs/common';
+import { USER_SERVICE, UserService } from '../user/UserService';
 import { Password } from '../user/Password';
 import User from '../user/User.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -8,7 +8,7 @@ import { JwtTokenPayload } from './JwtStrategy';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @Inject(USER_SERVICE) private readonly userService: UserService,
     private readonly jwtService: JwtService) {
   }
 
@@ -28,10 +28,10 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto): Promise<User | null> {
     const user = await this.userService.findByEmail(createUserDto.email);
     if (user) {
-      throw new Error('User already exists');
+      return null;
     }
     const pwHash = new Password(createUserDto.password).hash();
     return await this.userService.create(createUserDto.email, pwHash);

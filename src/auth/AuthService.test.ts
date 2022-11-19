@@ -35,11 +35,11 @@ describe('#AuthService', () => {
     test('create user if email is not taken', async () => {
       const user = await subject.register({ email: 'user2@mail.com', password });
       expect(user).toBeDefined();
-      expect(bcrypt.compareSync(password, user.passwordHash)).toBeTruthy();
+      expect(bcrypt.compareSync(password, user!.passwordHash)).toBeTruthy();
     });
 
-    test('throw error if email is already taken', () => {
-      expect(subject.register({ email, password })).rejects.toThrow('User already exists');
+    test('return null if email is already taken', async () => {
+      expect(await subject.register({ email, password })).toEqual(null);
     });
   });
 });

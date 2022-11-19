@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Post, Req, UseGuards } from '@nestjs/common';
 import User from '../user/User.entity';
 import { LocalAuthGuard } from '../LocalAuthGuard';
 import { AuthService, CreateUserDto } from './AuthService';
@@ -16,7 +16,11 @@ export default class AuthController {
 
   @Post('/auth/register')
   async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.register(createUserDto);
+    const user = await this.authService.register(createUserDto);
+    if (user === null) {
+      throw new ForbiddenException();
+    }
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
