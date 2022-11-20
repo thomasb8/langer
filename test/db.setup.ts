@@ -1,11 +1,7 @@
 import { createConnection } from 'typeorm';
-import { config } from 'dotenv';
 import { createLangerOrmConfig } from '../src/LangerOrmConfig';
 
 beforeAll(async () => {
-  config({ path: '../.env' });
-  config({ path: '../.env.test' });
-
   await setUpDb();
 });
 
