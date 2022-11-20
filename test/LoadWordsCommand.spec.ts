@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WordEntry } from '../WordEntry.entity';
-import { LoadWordsCommand } from './LoadWordsCommand';
-import { WORD_SERVICE, WordService } from '../WordService';
+import { WordEntry } from '../src/word/WordEntry.entity';
+import { LoadWordsCommand } from '../src/word/loader/LoadWordsCommand';
+import { WORD_SERVICE, WordService } from '../src/word/WordService';
 import { plainToInstance } from 'class-transformer';
-import { InMemoryWordService } from '../InMemoryWordService';
+import { InMemoryWordService } from '../src/word/InMemoryWordService';
 describe('#LoadWordsCommand', () => {
   let subject: LoadWordsCommand;
   let wordService: WordService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [LoadWordsCommand, { provide: WORD_SERVICE, useClass: InMemoryWordService }]
     }).compile();
@@ -22,13 +22,13 @@ describe('#LoadWordsCommand', () => {
   });
 
   test('Load words into database', async () => {
-    await subject.run([], { path: './src/word/loader/test-input.json' });
+    await subject.run([], { path: './test/test-input.json' });
     const models: WordEntry[] = await wordService.findAll();
     expect(models.length).toEqual(3);
   });
 
   test('Correctly loads basic fields for a verb', async () => {
-    await subject.run([], { path: './src/word/loader/test-input.json' });
+    await subject.run([], { path: 'test/test-input.json' });
     const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('ablenken'))[0]);
     expect(verb.word).toEqual('ablenken');
     expect(verb.senses).toEqual([expect.objectContaining({ meaning: '(transitive) to divert', examples: [] }),
@@ -41,7 +41,7 @@ describe('#LoadWordsCommand', () => {
   });
 
   test('Correctly loads basic fields for a noun', async () => {
-    await subject.run([], { path: './src/word/loader/test-input.json' });
+    await subject.run([], { path: 'test/test-input.json' });
     const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('Kind'))[0]);
     expect(verb.word).toEqual('Kind');
     expect(verb.senses).toEqual([
@@ -59,7 +59,7 @@ describe('#LoadWordsCommand', () => {
   });
 
   test('Sets up connection between related words', async () => {
-    await subject.run([], { path: './src/word/loader/test-input.json' });
+    await subject.run([], { path: 'test/test-input.json' });
     const base: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('ablenken'))[0]);
     const derived: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('Ablenken'))[0]);
     expect(derived.formOf?.[0].word).toEqual('ablenken');
