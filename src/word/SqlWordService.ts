@@ -15,7 +15,7 @@ export class SqlWordService implements WordService {
   }
 
   findAll(): Promise<WordEntry[]> {
-    return Promise.resolve([]);
+    return this.wordEntryRepository.find();
   }
 
   async findWordsBySearch(search: string): Promise<WordEntry[]> {

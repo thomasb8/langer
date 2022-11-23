@@ -3,14 +3,14 @@ import { WordEntry } from '../src/word/WordEntry.entity';
 import { LoadWordsCommand } from '../src/word/loader/LoadWordsCommand';
 import { WORD_SERVICE, WordService } from '../src/word/WordService';
 import { plainToInstance } from 'class-transformer';
-import { InMemoryWordService } from '../src/word/InMemoryWordService';
+import { AppModule } from '../src/AppModule';
 describe('#LoadWordsCommand', () => {
   let subject: LoadWordsCommand;
   let wordService: WordService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [LoadWordsCommand, { provide: WORD_SERVICE, useClass: InMemoryWordService }]
+      imports: [AppModule]
     }).compile();
 
     subject = module.get<LoadWordsCommand>(LoadWordsCommand);
@@ -29,20 +29,20 @@ describe('#LoadWordsCommand', () => {
 
   test('Correctly loads basic fields for a verb', async () => {
     await subject.run([], { path: 'test/test-input.json' });
-    const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('ablenken'))[0]);
+    const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('ablenken')));
     expect(verb.word).toEqual('ablenken');
     expect(verb.senses).toEqual([expect.objectContaining({ meaning: '(transitive) to divert', examples: [] }),
       expect.objectContaining({ meaning: '(transitive) to distract', examples: [] })]);
     expect(verb.position).toEqual('verb');
-    expect(verb.gender).toEqual(undefined);
-    expect(verb.plural).toEqual(undefined);
+    expect(verb.gender).toEqual(null);
+    expect(verb.plural).toEqual(null);
     expect(verb.conjugations.length).toEqual(127);
     expect(verb.conjugations[0]).toEqual({ form: 'lenkt ab', tags: ['present', 'singular', 'third-person'] });
   });
 
   test('Correctly loads basic fields for a noun', async () => {
     await subject.run([], { path: 'test/test-input.json' });
-    const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('Kind'))[0]);
+    const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('Kind')));
     expect(verb.word).toEqual('Kind');
     expect(verb.senses).toEqual([
       { meaning: 'kid; child (young person)', examples: [] },
@@ -60,9 +60,9 @@ describe('#LoadWordsCommand', () => {
 
   test('Sets up connection between related words', async () => {
     await subject.run([], { path: 'test/test-input.json' });
-    const base: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('ablenken'))[0]);
-    const derived: WordEntry = plainToInstance(WordEntry, (await wordService.findWordsBySearch('Ablenken'))[0]);
-    expect(derived.formOf?.[0].word).toEqual('ablenken');
-    expect(derived.formOf?.[0].id).toEqual(base.id);
+    const base: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('ablenken')));
+    const derived: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('Ablenken')));
+    expect(derived.formOf![0].word).toEqual('ablenken');
+    expect(derived.formOf![0].id).toEqual(base.id);
   });
 });

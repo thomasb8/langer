@@ -7,13 +7,13 @@ import {
 } from '../WordEntry.entity';
 import * as fs from 'fs';
 import * as readLine from 'readline';
-import { Inject } from '@nestjs/common';
-import { WORD_SERVICE, WordService } from '../WordService';
+import { InjectLangerRepository } from '../../InjectLangerRepository';
+import { Repository } from 'typeorm';
 
 @Command({ name: 'load-words', description: 'Load words into dictionary' })
 export class LoadWordsCommand extends CommandRunner {
   constructor(
-    @Inject(WORD_SERVICE) private wordService: WordService
+    @InjectLangerRepository(WordEntry) private repository: Repository<WordEntry>
   ) {
     super();
   }
@@ -27,7 +27,7 @@ export class LoadWordsCommand extends CommandRunner {
       throw new Error(`Input file: ${path} does not exist`);
     }
 
-    await this.wordService.deleteAll();
+    await this.repository.delete({});
 
     const stream = fs.createReadStream(path);
     const rl = readLine.createInterface({
@@ -36,9 +36,11 @@ export class LoadWordsCommand extends CommandRunner {
     });
 
     const altMap = new Map<string, Array<{ id: string, word: string }>>();
+    const insertedWordsMap: Record<string, string> = {};
     let objs = [];
     const chunkSize = 1000;
     let count = 0;
+    let totalCount = 0;
     for await (const line of rl) {
       const obj = JSON.parse(line);
       let meta;
@@ -80,7 +82,11 @@ export class LoadWordsCommand extends CommandRunner {
         continue;
       }
       count = 0;
-      const savedWords = await this.wordService.saveAll(objs);
+      totalCount += chunkSize;
+      const savedWords = await this.repository.save(objs);
+      savedWords.forEach(it => insertedWordsMap[it.word] = it.id);
+      console.clear();
+      console.log(`Saved ${totalCount} words`);
       savedWords.filter(it => it.formOf).forEach(it => {
         if (!altMap.get(it.formOf![0].word)) {
           altMap.set(it.formOf![0].word, []);
@@ -91,7 +97,10 @@ export class LoadWordsCommand extends CommandRunner {
     }
 
     if (objs.length) {
-      const savedWords = await this.wordService.saveAll(objs);
+      const savedWords = await this.repository.save(objs);
+      savedWords.forEach(it => insertedWordsMap[it.word] = it.id);
+      console.clear();
+      console.log(`Saved ${totalCount} words`);
       savedWords.filter(it => it.formOf).forEach(it => {
         if (!altMap.get(it.formOf![0].word)) {
           altMap.set(it.formOf![0].word, []);
@@ -100,13 +109,14 @@ export class LoadWordsCommand extends CommandRunner {
       });
     }
 
-    for (const [key, value] of altMap.entries()) {
-      const wordEntry = await this.wordService.findWordBySearch(key);
-      const relatedWords = await this.wordService.findByIds(value.map(it => it.id));
-      if (!wordEntry || !relatedWords.length) continue;
-      relatedWords.forEach(it => it.formOf?.forEach(it => it.id = wordEntry.id));
-      await this.wordService.saveAll(relatedWords);
-    }
+    await Promise.all(Array.from(altMap.entries()).map((entry, i) => {
+      const id = insertedWordsMap[entry[0]];
+      if (id) {
+        console.clear();
+        console.log(`Update ${i} from ${altMap.size} entries`);
+        return this.repository.update(entry[1].map(w => w.id), { formOf: [{ word: entry[0], id }] });
+      }
+    }));
   }
 
   @Option({
