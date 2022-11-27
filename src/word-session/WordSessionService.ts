@@ -7,7 +7,10 @@ import WordSessionEntry from './WordSessionEntry.entity';
 
 @Injectable()
 export default class WordSessionService {
-  constructor(@InjectLangerRepository(WordSession) private readonly repository: Repository<WordSession>) {}
+  constructor(
+    @InjectLangerRepository(WordSession) private readonly repository: Repository<WordSession>,
+    @InjectLangerRepository(WordSessionEntry) private readonly wordSessionEntryRepository: Repository<WordSessionEntry>
+  ) {}
 
   list(user: User): Promise<WordSession[]> {
     return this.repository.find({ relations: ['entries', 'entries.word'], where: { userId: user.id } });
@@ -25,11 +28,7 @@ export default class WordSessionService {
     if (wordSession.entries.find(it => it.wordId === wordId)) {
       return;
     }
-    const entry = new WordSessionEntry();
-    entry.sessionId = sessionId;
-    entry.wordId = wordId;
-    wordSession.entries.push(entry);
-    await this.repository.save(wordSession);
+    await this.wordSessionEntryRepository.insert({ sessionId, wordId });
   }
 
   async removeWord(sessionId: string, wordId: string): Promise<void> {
@@ -40,9 +39,7 @@ export default class WordSessionService {
     if (!wordSession.entries.find(it => it.wordId === wordId)) {
       return;
     }
-    wordSession.entries = wordSession.entries.filter(it => it.wordId !== wordId);
-    await this.repository.delete({ id: sessionId });
-    await this.repository.save(wordSession);
+    await this.wordSessionEntryRepository.delete({ sessionId, wordId });
   }
 
 
