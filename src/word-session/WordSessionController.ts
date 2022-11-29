@@ -14,6 +14,11 @@ export default class WordSessionController {
     return this.wordSessionService.list(req.user);
   }
 
+  @Get('/word-session/:sessionId')
+  getById(@Param('sessionId') sessionId: string) {
+    return this.wordSessionService.getById(sessionId);
+  }
+
   @Post('/word-session/create')
   create(@Req() req: { user: User }) {
     return this.wordSessionService.create(req.user);

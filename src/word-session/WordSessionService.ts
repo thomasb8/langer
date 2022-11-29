@@ -16,6 +16,10 @@ export default class WordSessionService {
     return this.repository.find({ relations: ['entries', 'entries.word'], where: { userId: user.id } });
   }
 
+  getById(sessionId: string): Promise<WordSession | undefined> {
+    return this.repository.findOne({ id: sessionId }, { relations: ['entries', 'entries.word'] });
+  }
+
   create(user: User): Promise<WordSession> {
     return this.repository.save({ userId: user.id });
   }
