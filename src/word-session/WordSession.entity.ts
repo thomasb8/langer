@@ -9,7 +9,6 @@ export default class WordSession {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 

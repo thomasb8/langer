@@ -19,7 +19,6 @@ export default class WordSessionEntry {
   @ManyToOne(() => WordSession, session => session.entries, { onDelete: 'CASCADE' })
   wordSession: WordSession;
 
-  @Exclude()
   @Column()
   wordId: string;
 
