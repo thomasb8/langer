@@ -31,7 +31,7 @@ import WordSessionService from './word-session/WordSessionService';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' }
+      signOptions: { expiresIn: process.env.LOGIN_TOKEN_EXPIRY }
     }),
     CommandRunnerModule.forModule()
   ],
