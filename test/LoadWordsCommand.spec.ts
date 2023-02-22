@@ -57,12 +57,4 @@ describe('#LoadWordsCommand', () => {
     expect(verb.conjugations.length).toEqual(16);
     expect(verb.conjugations[0]).toEqual({ form: 'Kindes', tags: ['genitive'] });
   });
-
-  test('Sets up connection between related words', async () => {
-    await subject.run([], { path: 'test/test-input.json' });
-    const base: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('ablenken')));
-    const derived: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('Ablenken')));
-    expect(derived.formOf![0].word).toEqual('ablenken');
-    expect(derived.formOf![0].id).toEqual(base.id);
-  });
 });

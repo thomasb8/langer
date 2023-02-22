@@ -13,37 +13,37 @@ export default class WordSessionService {
   ) {}
 
   list(user: User): Promise<WordSession[]> {
-    return this.repository.find({ relations: ['entries', 'entries.word'], where: { userId: user.id } });
+    return this.repository.find({ relations: ['entries'], where: { userId: user.id } });
   }
 
   getById(sessionId: string): Promise<WordSession | undefined> {
-    return this.repository.findOne({ id: sessionId }, { relations: ['entries', 'entries.word'] });
+    return this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
   }
 
   create(user: User): Promise<WordSession> {
     return this.repository.save({ userId: user.id });
   }
 
-  async addWord(sessionId: string, wordId: string): Promise<void> {
+  async addWord(sessionId: string, word: string): Promise<void> {
     const wordSession = await this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
     if (!wordSession) {
       throw new Error(`Word session: ${sessionId} does not exist`);
     }
-    if (wordSession.entries.find(it => it.wordId === wordId)) {
+    if (wordSession.entries.find(it => it.word === word)) {
       return;
     }
-    await this.wordSessionEntryRepository.insert({ sessionId, wordId });
+    await this.wordSessionEntryRepository.insert({ sessionId, word });
   }
 
-  async removeWord(sessionId: string, wordId: string): Promise<void> {
+  async removeWord(sessionId: string, word: string): Promise<void> {
     const wordSession = await this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
     if (!wordSession) {
       throw new Error(`Word session: ${sessionId} does not exist`);
     }
-    if (!wordSession.entries.find(it => it.wordId === wordId)) {
+    if (!wordSession.entries.find(it => it.word === word)) {
       return;
     }
-    await this.wordSessionEntryRepository.delete({ sessionId, wordId });
+    await this.wordSessionEntryRepository.delete({ sessionId, word: word });
   }
 
 

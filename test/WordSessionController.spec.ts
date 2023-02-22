@@ -60,9 +60,9 @@ describe('#WordSessionController', () => {
     const agent = supertest(app.getHttpServer());
     const loginResponse = await agent.post('/auth/login').send({ email: 'test@user.com', password: 'password' });
     const { id }  = (await agent.post('/word-session/create').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    await agent.put(`/word-session/${id}/${currentWord.id}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
+    await agent.put(`/word-session/${id}/${currentWord.word}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
     const sessions = (await agent.get('/word-session').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    expect(sessions).toMatchObject([{ id, entries: [{ word: expect.objectContaining({ word: currentWord.word }) }] }]);
+    expect(sessions).toMatchObject([{ id, entries: [{ word: currentWord.word }] }]);
   });
 
   test('remove word from word session', async () => {
@@ -70,10 +70,10 @@ describe('#WordSessionController', () => {
     const agent = supertest(app.getHttpServer());
     const loginResponse = await agent.post('/auth/login').send({ email: 'test@user.com', password: 'password' });
     const { id }  = (await agent.post('/word-session/create').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    await agent.put(`/word-session/${id}/${currentWord.id}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
+    await agent.put(`/word-session/${id}/${currentWord.word}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
     let sessions = (await agent.get('/word-session').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    expect(sessions).toMatchObject([{ id, entries: [{ word: expect.objectContaining({ word: currentWord.word }) }] }]);
-    await agent.delete(`/word-session/${id}/${currentWord.id}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
+    expect(sessions).toMatchObject([{ id, entries: [{ word: currentWord.word }] }]);
+    await agent.delete(`/word-session/${id}/${currentWord.word}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
     sessions = (await agent.get('/word-session').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
     expect(sessions).toMatchObject([{ id, entries: [] }]);
   });
@@ -83,9 +83,9 @@ describe('#WordSessionController', () => {
     const agent = supertest(app.getHttpServer());
     const loginResponse = await agent.post('/auth/login').send({ email: 'test@user.com', password: 'password' });
     const { id }  = (await agent.post('/word-session/create').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    await agent.put(`/word-session/${id}/${currentWord.id}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
+    await agent.put(`/word-session/${id}/${currentWord.word}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
     let sessions = (await agent.get('/word-session').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
-    expect(sessions).toMatchObject([{ id, entries: [{ word: expect.objectContaining({ word: currentWord.word }) }] }]);
+    expect(sessions).toMatchObject([{ id, entries: [{ word: currentWord.word }] }]);
     await agent.delete(`/word-session/${id}`).set('Authorization', `Bearer ${loginResponse.body.accessToken}`);
     sessions = (await agent.get('/word-session').set('Authorization', `Bearer ${loginResponse.body.accessToken}`)).body;
     expect(sessions).toMatchObject([]);

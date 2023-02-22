@@ -25,12 +25,9 @@ export class SqlWordService implements WordService {
       });
   }
 
-  async showWord(id: string): Promise<WordEntry | null> {
-    const obj = await this.wordEntryRepository.findOne({ id });
-    if (!obj) {
-      return null;
-    }
-    return plainToInstance(WordEntry, obj);
+  async showWords(word: string): Promise<WordEntry[] | null> {
+    const arr = await this.wordEntryRepository.find({ word });
+    return arr.map(it => plainToInstance(WordEntry, it));
   }
 
   async saveAll(words: Partial<WordEntry>[]): Promise<WordEntry[]> {

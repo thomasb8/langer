@@ -24,14 +24,14 @@ export default class WordSessionController {
     return this.wordSessionService.create(req.user);
   }
 
-  @Put('/word-session/:sessionId/:wordId')
-  addWord(@Param('sessionId') sessionId: string, @Param('wordId') wordId: string) {
-    return this.wordSessionService.addWord(sessionId, wordId);
+  @Put('/word-session/:sessionId/:word')
+  addWord(@Param('sessionId') sessionId: string, @Param('word') word: string) {
+    return this.wordSessionService.addWord(sessionId, word);
   }
 
-  @Delete('/word-session/:sessionId/:wordId')
-  removeWord(@Param('sessionId') sessionId: string, @Param('wordId') wordId: string) {
-    return this.wordSessionService.removeWord(sessionId, wordId);
+  @Delete('/word-session/:sessionId/:word')
+  removeWord(@Param('sessionId') sessionId: string, @Param('word') word: string) {
+    return this.wordSessionService.removeWord(sessionId, word);
   }
 
   @Delete('/word-session/:sessionId')

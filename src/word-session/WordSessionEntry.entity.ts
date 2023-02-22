@@ -20,10 +20,5 @@ export default class WordSessionEntry {
   wordSession: WordSession;
 
   @Column()
-  wordId: string;
-
-  @JoinColumn({ name: 'word_id' })
-  @Type(() => WordEntry)
-  @ManyToOne(() => WordEntry, wordEntry => wordEntry.sessionEntries, { onDelete: 'CASCADE' })
-  word: WordEntry;
+  word: string;
 }

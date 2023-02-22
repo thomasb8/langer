@@ -7,7 +7,7 @@ export interface WordService {
 
   findWordBySearch(search: string): Promise<WordEntry | undefined>;
 
-  showWord(id: string): Promise<WordEntry | null>;
+  showWords(word: string): Promise<WordEntry[] | null>;
 
   findByIds(ids: string[]): Promise<WordEntry[]>;
 

@@ -6,9 +6,9 @@ import { WordEntry } from './WordEntry.entity';
 export class WordController {
   constructor(@Inject(WORD_SERVICE) private readonly wordService: WordService) {}
 
-  @Get('/word/:id')
-  findById(@Param('id', new ParseUUIDPipe()) id: string): Promise<WordEntry | null> {
-    return this.wordService.showWord(id);
+  @Get('/word/:word')
+  findById(@Param('word') word: string): Promise<WordEntry[] | null> {
+    return this.wordService.showWords(word);
   }
 
   @Get('/word/find/:search')

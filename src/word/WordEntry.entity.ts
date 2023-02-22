@@ -44,12 +44,8 @@ export class WordEntry {
   senses: Sense[];
 
   @Expose()
-  @Column({
-    type: 'jsonb',
-    array: false,
-    nullable: true
-  })
-  formOf?: RelatedWord[];
+  @Column({ nullable: true })
+  formOf?: string;
 
   @OneToMany(() => WordSessionEntry, sessionEntry => sessionEntry.word)
   sessionEntries: WordSessionEntry[];
@@ -68,9 +64,4 @@ export type Sense = {
 export type WordMeta = {
   gender: string,
   plural: string
-};
-
-export type RelatedWord = {
-  word: string;
-  id: string;
 };

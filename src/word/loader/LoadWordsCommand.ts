@@ -1,6 +1,6 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 import {
-  Conjugation, RelatedWord,
+  Conjugation,
   Sense,
   WordEntry,
   WordMeta
@@ -35,7 +35,6 @@ export class LoadWordsCommand extends CommandRunner {
       crlfDelay: Infinity
     });
 
-    const altMap = new Map<string, Array<{ id: string, word: string }>>();
     const insertedWordsMap: Record<string, string> = {};
     let objs = [];
     const chunkSize = 1000;
@@ -59,9 +58,9 @@ export class LoadWordsCommand extends CommandRunner {
           })) || []
         } as Sense);
       });
-      let formOf: RelatedWord | undefined;
+      let formOf: string | undefined;
       if (obj.senses?.[0]?.form_of) {
-        formOf = { word: obj.senses[0].form_of[0].word, id: '' };
+        formOf = obj.senses[0].form_of[0].word;
       }
       const wordObj: Partial<WordEntry> = {
         word: obj.word,
@@ -74,7 +73,7 @@ export class LoadWordsCommand extends CommandRunner {
         wordObj.plural = meta.plural;
       }
       if (formOf) {
-        wordObj.formOf = [formOf];
+        wordObj.formOf = formOf;
       }
       objs.push(wordObj);
       if (count < chunkSize) {
@@ -84,39 +83,18 @@ export class LoadWordsCommand extends CommandRunner {
       count = 0;
       totalCount += chunkSize;
       const savedWords = await this.repository.save(objs);
+      console.log(savedWords);
       savedWords.forEach(it => insertedWordsMap[it.word] = it.id);
       console.clear();
       console.log(`Saved ${totalCount} words`);
-      savedWords.filter(it => it.formOf).forEach(it => {
-        if (!altMap.get(it.formOf![0].word)) {
-          altMap.set(it.formOf![0].word, []);
-        }
-        altMap.get(it.formOf![0].word)!.push({ id: it.id, word: it.word });
-      });
       objs = [];
     }
 
     if (objs.length) {
-      const savedWords = await this.repository.save(objs);
-      savedWords.forEach(it => insertedWordsMap[it.word] = it.id);
+      await this.repository.save(objs);
       console.clear();
       console.log(`Saved ${totalCount} words`);
-      savedWords.filter(it => it.formOf).forEach(it => {
-        if (!altMap.get(it.formOf![0].word)) {
-          altMap.set(it.formOf![0].word, []);
-        }
-        altMap.get(it.formOf![0].word)!.push({ id: it.id, word: it.word });
-      });
     }
-
-    await Promise.all(Array.from(altMap.entries()).map((entry, i) => {
-      const id = insertedWordsMap[entry[0]];
-      if (id) {
-        console.clear();
-        console.log(`Update ${i} from ${altMap.size} entries`);
-        return this.repository.update(entry[1].map(w => w.id), { formOf: [{ word: entry[0], id }] });
-      }
-    }));
   }
 
   @Option({

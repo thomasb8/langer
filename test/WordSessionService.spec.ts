@@ -76,9 +76,9 @@ describe('#WordSessionService', () => {
 
   test('#addWord', async () => {
     const session = await subject.create(user);
-    await subject.addWord(session.id, words[0].id!);
+    await subject.addWord(session.id, words[0].word!);
     const [createdSession] = await subject.list(user);
-    expect(createdSession.entries[0].word.word).toEqual(words[0].word);
+    expect(createdSession.entries[0].word).toEqual(words[0].word);
   });
 
   test('#removeWord', async () => {
