@@ -5,7 +5,7 @@ export const WORD_SERVICE = Symbol('WORD_SERVICE');
 export interface WordService {
   findWordsBySearch(search: string): Promise<WordEntry[]>;
 
-  findWordBySearch(search: string): Promise<WordEntry | undefined>;
+  findWordBySearch(search: string): Promise<WordEntry | null>;
 
   showWords(word: string): Promise<WordEntry[] | null>;
 

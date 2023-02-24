@@ -16,8 +16,8 @@ export default class WordSessionService {
     return this.repository.find({ relations: ['entries'], where: { userId: user.id } });
   }
 
-  getById(sessionId: string): Promise<WordSession | undefined> {
-    return this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
+  getById(sessionId: string): Promise<WordSession | null> {
+    return this.repository.findOne({ where: { id: sessionId }, relations: ['entries'] });
   }
 
   create(user: User): Promise<WordSession> {
@@ -25,7 +25,7 @@ export default class WordSessionService {
   }
 
   async addWord(sessionId: string, word: string): Promise<void> {
-    const wordSession = await this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
+    const wordSession = await this.repository.findOne({ where: { id: sessionId }, relations: ['entries'] });
     if (!wordSession) {
       throw new Error(`Word session: ${sessionId} does not exist`);
     }
@@ -36,7 +36,7 @@ export default class WordSessionService {
   }
 
   async removeWord(sessionId: string, word: string): Promise<void> {
-    const wordSession = await this.repository.findOne({ id: sessionId }, { relations: ['entries'] });
+    const wordSession = await this.repository.findOne({ where: { id: sessionId }, relations: ['entries'] });
     if (!wordSession) {
       throw new Error(`Word session: ${sessionId} does not exist`);
     }

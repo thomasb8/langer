@@ -10,8 +10,8 @@ export default class InMemoryUserService implements UserService {
     return Promise.resolve(user);
   }
 
-  findByEmail(email: string): Promise<User | undefined> {
-    return Promise.resolve(this.users.find(it => it.email === email));
+  findByEmail(email: string): Promise<User | null> {
+    return Promise.resolve(this.users.find(it => it.email === email) || null);
   }
 
 }

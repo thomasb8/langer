@@ -26,7 +26,7 @@ export class SqlWordService implements WordService {
   }
 
   async showWords(word: string): Promise<WordEntry[] | null> {
-    const arr = await this.wordEntryRepository.find({ word });
+    const arr = await this.wordEntryRepository.find({ where: { word }});
     return arr.map(it => plainToInstance(WordEntry, it));
   }
 
@@ -38,7 +38,7 @@ export class SqlWordService implements WordService {
     await this.wordEntryRepository.delete({});
   }
 
-  async findWordBySearch(search: string): Promise<WordEntry | undefined> {
+  async findWordBySearch(search: string): Promise<WordEntry | null> {
     return this.wordEntryRepository.findOne({ where: { word: search } });
   }
 }

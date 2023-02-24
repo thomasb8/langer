@@ -8,7 +8,7 @@ import { UserService } from './UserService';
 export class SqlUserService implements UserService {
   constructor(@InjectLangerRepository(User) private readonly repository: Repository<User>) {}
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.repository.findOne({ where: { email } });
   }
 

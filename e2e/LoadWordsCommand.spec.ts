@@ -22,13 +22,13 @@ describe('#LoadWordsCommand', () => {
   });
 
   test('Load words into database', async () => {
-    await subject.run([], { path: './test/test-input.json' });
+    await subject.run([], { path: './e2e/test-input.json' });
     const models: WordEntry[] = await wordService.findAll();
     expect(models.length).toEqual(3);
   });
 
   test('Correctly loads basic fields for a verb', async () => {
-    await subject.run([], { path: 'test/test-input.json' });
+    await subject.run([], { path: './e2e/test-input.json' });
     const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('ablenken')));
     expect(verb.word).toEqual('ablenken');
     expect(verb.senses).toEqual([expect.objectContaining({ meaning: '(transitive) to divert', examples: [] }),
@@ -41,7 +41,7 @@ describe('#LoadWordsCommand', () => {
   });
 
   test('Correctly loads basic fields for a noun', async () => {
-    await subject.run([], { path: 'test/test-input.json' });
+    await subject.run([], { path: './e2e/test-input.json' });
     const verb: WordEntry = plainToInstance(WordEntry, (await wordService.findWordBySearch('Kind')));
     expect(verb.word).toEqual('Kind');
     expect(verb.senses).toEqual([
